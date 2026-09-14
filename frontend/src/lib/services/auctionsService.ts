@@ -31,6 +31,13 @@ export interface GetAuctionsQuery {
 
 export interface PaginatedAuctionsResponse {
   data: Auction[];
+  meta: {
+	totalItems?: number,
+	itemCount?: number,
+	itemsPerPage?: number,
+	totalPages?: number,
+	currentPage?: number 
+  }
 }
 
 export interface RequestOptions extends RequestInit {
@@ -78,6 +85,29 @@ async function apiFetch<T>(
   return response.json() as Promise<T>;
 }
 
-export function getAuctions() {}
+export function getAuctions(query?: GetAuctionsQuery, options?: RequestOptions ) {
+	const params = new URLSearchParams();
+	if (query) {
+		Object.entries(query).forEach( ([key, value]) => {
+			if(value !== undefined && value !== null) {
+				params.append(key, String(value));
+			}
+		} );
+	}
+	const queryString = params.toString();
+	const endPoint = queryString ? `/auctions?${queryString}` : '/auctions';
 
-export function getAuctionById() {}
+	return apiFetch<PaginatedAuctionsResponse>(endPoint, { 
+		method: "GET",
+		...options
+	} )
+}
+
+export function getAuctionById(id?: string, options?: RequestOptions) {
+	
+	const endPoint = `/auctions/${id}`;
+	return apiFetch<Auction>(endPoint, {
+		method: "GET",
+		...options
+	})
+}
