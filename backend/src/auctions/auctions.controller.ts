@@ -20,14 +20,16 @@ import { PaginatedAuctionResponseDto } from './dto/paginated-auction-response.dt
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 
-
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
   @SerializeOptions({ type: AuctionResponseDto })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createAuctionDto: CreateAuctionDto, @CurrentUser("id") userId: string) {
+  create(
+    @Body() createAuctionDto: CreateAuctionDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.auctionsService.create(createAuctionDto, userId);
   }
 
@@ -55,4 +57,3 @@ export class AuctionsController {
     return this.auctionsService.remove(id);
   }
 }
-

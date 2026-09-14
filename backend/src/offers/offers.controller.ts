@@ -19,7 +19,11 @@ export class OffersController {
   @SerializeOptions({ type: OfferResponseDto })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Param('id') auctionId: string, @Body() createOfferDto: CreateOfferDto, @CurrentUser("id") userId: string) {
+  create(
+    @Param('id') auctionId: string,
+    @Body() createOfferDto: CreateOfferDto,
+    @CurrentUser('id') userId: string,
+  ) {
     return this.offersService.create(auctionId, createOfferDto, userId);
   }
 }

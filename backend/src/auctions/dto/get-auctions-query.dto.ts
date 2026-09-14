@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
@@ -7,11 +7,11 @@ import {
   IsNumber,
   IsOptional,
   Min,
-} from "class-validator";
+} from 'class-validator';
 
 export enum AuctionStatus {
-  OPEN = "open",
-  CLOSED = "closed",
+  OPEN = 'open',
+  CLOSED = 'closed',
 }
 
 export class GetAuctionsQueryDto {

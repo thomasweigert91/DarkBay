@@ -12,7 +12,6 @@ const dataSource = new DataSource({
 });
 
 async function seed() {
-
- console.log('fire');
+  console.log('fire');
   await dataSource.initialize();
 }

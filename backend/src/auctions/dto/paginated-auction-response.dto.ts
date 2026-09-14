@@ -1,7 +1,7 @@
-import { Expose, Type } from "class-transformer";
+import { Expose, Type } from 'class-transformer';
 
-import { AuctionResponseDto } from "./auction-response-dto";
-import { ApiProperty } from "@nestjs/swagger";
+import { AuctionResponseDto } from './auction-response-dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginatedAuctionResponseDto {
   @ApiProperty()

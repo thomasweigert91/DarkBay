@@ -5,11 +5,17 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.use('/api/auth', toNodeHandler(auth));
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  });
+
+  app.use('/api/auth', toNodeHandler(auth));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -41,4 +47,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 8000);
 }
-bootstrap();
+void bootstrap();

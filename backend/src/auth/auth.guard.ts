@@ -3,11 +3,11 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
-} from "@nestjs/common";
-import { Observable } from "rxjs";
-import { auth } from "../auth";
-import { fromNodeHeaders } from "better-auth/node";
-import type { Request } from "express";
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { auth } from '../auth';
+import { fromNodeHeaders } from 'better-auth/node';
+import type { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     });
 
     if (!session) {
-      throw new UnauthorizedException("Please log in!");
+      throw new UnauthorizedException('Please log in!');
     }
 
     request.user = session.user;

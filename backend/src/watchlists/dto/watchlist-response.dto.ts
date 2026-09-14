@@ -1,6 +1,6 @@
-import { Expose, Type } from "class-transformer";
-import { AuctionResponseDto } from "src/auctions/dto/auction-response-dto";
-import { Auction } from "src/auctions/entities/auction.entity";
+import { Expose, Type } from 'class-transformer';
+import { AuctionResponseDto } from 'src/auctions/dto/auction-response-dto';
+import { Auction } from 'src/auctions/entities/auction.entity';
 
 export class WatchlistResponseDto {
   @Expose()

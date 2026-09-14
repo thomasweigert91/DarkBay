@@ -5,7 +5,7 @@ export class OfferResponseDto {
   @ApiProperty()
   @Expose()
   id!: string;
-  @ApiProperty()  
+  @ApiProperty()
   @Expose()
   offer!: number;
   @ApiProperty()

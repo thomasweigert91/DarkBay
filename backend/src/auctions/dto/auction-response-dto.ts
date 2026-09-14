@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
-import { OfferResponseDto } from "src/offers/dto/offer-reponse.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
+import { OfferResponseDto } from 'src/offers/dto/offer-reponse.dto';
 
 export class AuctionResponseDto {
   @ApiProperty()
