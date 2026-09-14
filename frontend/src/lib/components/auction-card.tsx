@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { Countdown } from "./countdown";
 
 interface AuctionCardProps {
   id: string;
@@ -24,7 +25,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({
   title,
 }) => {
   return (
-    <Card className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+    <Card className=" p-0 group flex flex-col justify-between overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
       <div>
         <div className="relative aspect-square w-full overflow-hidden bg-muted">
           <Image
@@ -46,7 +47,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({
         </CardHeader>
 
         <CardContent className="grid grid-cols-2 gap-3 p-4 pt-0">
-          <div className="rounded-lg bg-muted/50 p-2.5">
+          <div className="rounded-lg bg-muted/50 p-2.5 flex flex-col items-center justify-center">
             <p className="text-xs font-medium text-muted-foreground">
               Current Bid
             </p>
@@ -55,12 +56,12 @@ export const AuctionCard: FC<AuctionCardProps> = ({
             </p>
           </div>
 
-          <div className="rounded-lg bg-muted/50 p-2.5">
+          <div className="rounded-lg bg-muted/50 p-2.5 flex flex-col items-center justify-center">
             <p className="text-xs font-medium text-muted-foreground">
-              End Date
+              Time left
             </p>
-            <p className="text-sm font-semibold text-foreground">
-              {new Date(endDate).toLocaleDateString()}
+            <p className="text-sm font-semibold tracking-tight text-foreground">
+              <Countdown endDate={endDate} />
             </p>
           </div>
         </CardContent>
