@@ -28,9 +28,11 @@ export class Auction {
   @Column()
   sellerId!: string;
 
+  @CreateDateColumn({ type: 'datetime' })
   @CreateDateColumn()
   startDate!: Date;
 
+  @Column({ type: 'datetime' })
   @Column({ nullable: true })
   endDate!: Date;
 

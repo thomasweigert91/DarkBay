@@ -20,6 +20,7 @@ export class Offer {
   @Column()
   offer!: number;
 
+  @CreateDateColumn({ type: 'datetime' })
   @CreateDateColumn()
   offerDate!: Date;
 

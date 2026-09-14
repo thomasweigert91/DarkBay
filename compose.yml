@@ -1,12 +1,13 @@
 services:
   dark-bay:
-    build: .
+    build: ./backend
     ports:
-      - '3000:3000'
+      - "8000:8000"
     environment:
+      - PORT=8000
       - DATABASE_URL=postgresql://dark-bay-owner:dark-bay-password@db:5432/postgres
       - BETTER_AUTH_SECRET=supersecretkey12345678901234567890
-      - BETTER_AUTH_URL=http://localhost:3000
+      - BETTER_AUTH_URL=http://localhost:8000
     depends_on:
       db:
         condition: service_healthy
@@ -19,7 +20,7 @@ services:
       POSTGRES_PASSWORD: dark-bay-password
       POSTGRES_DB: postgres
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

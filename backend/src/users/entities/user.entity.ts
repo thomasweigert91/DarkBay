@@ -6,13 +6,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-} from "typeorm";
-import { Auction } from "../../auctions/entities/auction.entity";
-import { Offer } from "src/offers/entities/offer.entity";
+} from 'typeorm';
+import { Auction } from '../../auctions/entities/auction.entity';
+import { Offer } from 'src/offers/entities/offer.entity';
 
-@Entity("user")
+@Entity('user')
 export class User {
-  @PrimaryColumn("text")
+  @PrimaryColumn('text')
   id!: string;
 
   @Column()
@@ -27,9 +27,11 @@ export class User {
   @Column({ nullable: true })
   image!: string;
 
+  @CreateDateColumn({ type: 'datetime' })
   @CreateDateColumn()
   createdAt!: Date;
 
+  @UpdateDateColumn({ type: 'datetime' })
   @UpdateDateColumn()
   updatedAt!: Date;
 
