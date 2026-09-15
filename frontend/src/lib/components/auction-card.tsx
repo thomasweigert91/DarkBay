@@ -25,7 +25,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({
   title,
 }) => {
   return (
-    <Card className=" p-0 group flex flex-col justify-between overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+    <Card className="p-0 group flex flex-col justify-between overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md max-w-3xl">
       <div>
         <div className="relative aspect-square w-full overflow-hidden bg-muted">
           <Image
@@ -47,7 +47,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({
         </CardHeader>
 
         <CardContent className="grid grid-cols-2 gap-3 p-4 pt-0">
-          <div className="rounded-lg bg-muted/50 p-2.5 flex flex-col items-center justify-center">
+          <div className="rounded-lg bg-muted/50 p-2.5">
             <p className="text-xs font-medium text-muted-foreground">
               Current Bid
             </p>
@@ -56,13 +56,11 @@ export const AuctionCard: FC<AuctionCardProps> = ({
             </p>
           </div>
 
-          <div className="rounded-lg bg-muted/50 p-2.5 flex flex-col items-center justify-center">
+          <div className="rounded-lg bg-muted/50 p-2.5">
             <p className="text-xs font-medium text-muted-foreground">
-              Time left
+              End Date
             </p>
-            <p className="text-sm font-semibold tracking-tight text-foreground">
-              <Countdown endDate={endDate} />
-            </p>
+            <Countdown endDate={endDate} />
           </div>
         </CardContent>
       </div>
