@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { Auction, GetAuctionsQuery, PaginatedAuctionsResponse } from "../types/auctions.types";
 
 const API_BASE_URL = process.env.DARKBAY_API_URL || "http://localhost:8000";
@@ -17,7 +18,10 @@ async function apiFetch<T>(
 	endpoint: string,
 	options: RequestOptions = {},
 ): Promise<T> {
-	const { token, headers, ...restOptions } = options;
+	const { headers, ...restOptions } = options;
+
+	const cookieStore = await cookies();
+	const token = cookieStore.get("darkbay_token")?.value;
 
 	const requestHeaders = new Headers(headers);
 	requestHeaders.set("Content-Type", "application/json");
