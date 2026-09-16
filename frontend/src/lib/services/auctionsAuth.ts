@@ -91,3 +91,60 @@ export async function isAuthenticated() {
 	const cookieStore = await cookies();
 	return cookieStore.has(TOKEN_COOKIE_NAME);
 }
+
+export interface UserSession {
+	id: string;
+	name: string;
+	email: string;
+	image?: string | null;
+}
+
+export async function getCurrentUser(): Promise<UserSession | null> {
+	const cookieStore = await cookies();
+	const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+	if (!token) return null;
+
+	try {
+		const response = await fetch(`${API_BASE_URL}/api/auth/get-session`, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			cache: "no-store",
+		});
+
+		if (!response.ok) return null;
+		const data = await response.json();
+		return data?.user || null;
+	} catch (error) {
+		console.error("getCurrentUser error:", error);
+		return null;
+	}
+}
+
+export async function createOfferAction(auctionId: string, offer: number) {
+	const cookieStore = await cookies();
+	const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+
+	if (!token) {
+		throw new Error("Bitte melden Sie sich an, um ein Gebot abzugeben.");
+	}
+
+	const response = await fetch(`${API_BASE_URL}/auctions/${auctionId}/offers`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify({ offer }),
+	});
+
+	if (!response.ok) {
+		const errorBody = await response.json().catch(() => null);
+		const message = Array.isArray(errorBody?.message)
+			? errorBody.message.join(", ")
+			: errorBody?.message || `Fehler beim Bieten (${response.status})`;
+		throw new Error(message);
+	}
+
+	return await response.json();
+}

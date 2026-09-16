@@ -33,9 +33,11 @@ export function AuctionFilters({
 	]);
 
 
-	useEffect(() => {
+	const [prevPrices, setPrevPrices] = useState({ min: currentMinPrice, max: currentMaxPrice });
+	if (prevPrices.min !== currentMinPrice || prevPrices.max !== currentMaxPrice) {
+		setPrevPrices({ min: currentMinPrice, max: currentMaxPrice });
 		setPriceRange([currentMinPrice, currentMaxPrice]);
-	}, [currentMinPrice, currentMaxPrice]);
+	}
 
 
 	const updateQueryParams = (updates: Record<string, string | undefined>) => {

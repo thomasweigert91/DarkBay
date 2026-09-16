@@ -7,7 +7,6 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { logoutAction } from "../services/auctionsAuth";
 

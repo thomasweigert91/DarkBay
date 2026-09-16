@@ -1,6 +1,5 @@
 "use client";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import Link from "next/link";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useSearchParams } from "next/navigation";
 
 export function generatePagination(page: number, totalPages: number) {
@@ -19,11 +18,9 @@ interface PaginationProps {
 }
 
 export function AppPagination(meta: PaginationProps) {
-
+	const searchParams = useSearchParams();
 	const { page: currentPage, totalPages } = meta;
 	if (totalPages <= 1) return null;
-
-	const searchParams = useSearchParams();
 	const buildPageHref = (page: number) => {
 		const params = new URLSearchParams(searchParams.toString());
 		params.set("page", String(page));

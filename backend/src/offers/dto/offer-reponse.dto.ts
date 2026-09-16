@@ -11,4 +11,8 @@ export class OfferResponseDto {
   @ApiProperty()
   @Expose()
   offerDate!: Date;
+
+  @ApiProperty()
+  @Expose()
+  userId!: string;
 }

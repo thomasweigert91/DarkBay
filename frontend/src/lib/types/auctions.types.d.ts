@@ -1,3 +1,10 @@
+export interface Offer {
+	id: string;
+	offer: number;
+	offerDate: string;
+	userId?: string;
+}
+
 export interface Auction {
 	id: string;
 	title: string;
