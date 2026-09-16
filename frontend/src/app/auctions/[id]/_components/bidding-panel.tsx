@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Countdown } from "@/lib/components/countdown";
-import { Auction } from "@/lib/services/auctionsService";
+import { Auction } from "@/lib/types/auctions.types";
 import { FC, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
