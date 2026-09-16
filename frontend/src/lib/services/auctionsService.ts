@@ -1,110 +1,79 @@
+import { Auction, GetAuctionsQuery, PaginatedAuctionsResponse } from "../types/auctions.types";
+
 const API_BASE_URL = process.env.DARKBAY_API_URL || "http://localhost:8000";
 
 export interface Offer {
-  id: string;
-  offer: number;
-  offerDate: string;
-  userId?: string;
-}
-
-export interface Auction {
-  id: string;
-  title: string;
-  description: string;
-  startingPrice: number;
-  currentPrice: number;
-  sellerId: string;
-  startDate: string;
-  endDate: string;
-  offers?: Offer[];
-}
-
-export type AuctionStatus = "open" | "closed";
-
-export interface GetAuctionsQuery {
-  limit?: number;
-  page?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  status?: AuctionStatus;
-}
-
-export interface PaginatedAuctionsResponse {
-  data: Auction[];
-  meta: {
-	totalItems?: number,
-	itemCount?: number,
-	itemsPerPage?: number,
-	totalPages?: number,
-	currentPage?: number 
-  }
+	id: string;
+	offer: number;
+	offerDate: string;
+	userId?: string;
 }
 
 export interface RequestOptions extends RequestInit {
-  token?: string;
+	token?: string;
 }
 
 async function apiFetch<T>(
-  endpoint: string,
-  options: RequestOptions = {},
+	endpoint: string,
+	options: RequestOptions = {},
 ): Promise<T> {
-  const { token, headers, ...restOptions } = options;
+	const { token, headers, ...restOptions } = options;
 
-  const requestHeaders = new Headers(headers);
-  requestHeaders.set("Content-Type", "application/json");
+	const requestHeaders = new Headers(headers);
+	requestHeaders.set("Content-Type", "application/json");
 
-  if (token) {
-    requestHeaders.set("Authorization", `Bearer ${token}`);
-  }
+	if (token) {
+		requestHeaders.set("Authorization", `Bearer ${token}`);
+	}
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...restOptions,
-    headers: requestHeaders,
-    credentials: "include", // Unterstützt Better Auth Session-Cookies
-  });
+	const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+		...restOptions,
+		headers: requestHeaders,
+		credentials: "include", // Unterstützt Better Auth Session-Cookies
+	});
 
-  if (!response.ok) {
-    let errorMessage = `API Error ${response.status}: ${response.statusText}`;
-    try {
-      const errorBody = await response.json();
-      if (errorBody && errorBody.message) {
-        errorMessage = Array.isArray(errorBody.message)
-          ? errorBody.message.join(", ")
-          : errorBody.message;
-      }
-    } catch {
-      // Body war kein JSON
-    }
-    throw new Error(errorMessage);
-  }
+	if (!response.ok) {
+		let errorMessage = `API Error ${response.status}: ${response.statusText}`;
+		try {
+			const errorBody = await response.json();
+			if (errorBody && errorBody.message) {
+				errorMessage = Array.isArray(errorBody.message)
+					? errorBody.message.join(", ")
+					: errorBody.message;
+			}
+		} catch {
+			// Body war kein JSON
+		}
+		throw new Error(errorMessage);
+	}
 
-  if (response.status === 204) {
-    return undefined as unknown as T;
-  }
+	if (response.status === 204) {
+		return undefined as unknown as T;
+	}
 
-  return response.json() as Promise<T>;
+	return response.json() as Promise<T>;
 }
 
-export function getAuctions(query?: GetAuctionsQuery, options?: RequestOptions ) {
+export function getAuctions(query?: GetAuctionsQuery, options?: RequestOptions) {
 	const params = new URLSearchParams();
 	if (query) {
-		Object.entries(query).forEach( ([key, value]) => {
-			if(value !== undefined && value !== null) {
+		Object.entries(query).forEach(([key, value]) => {
+			if (value !== undefined && value !== null) {
 				params.append(key, String(value));
 			}
-		} );
+		});
 	}
 	const queryString = params.toString();
 	const endPoint = queryString ? `/auctions?${queryString}` : '/auctions';
 
-	return apiFetch<PaginatedAuctionsResponse>(endPoint, { 
+	return apiFetch<PaginatedAuctionsResponse>(endPoint, {
 		method: "GET",
 		...options
-	} )
+	})
 }
 
 export function getAuctionById(id?: string, options?: RequestOptions) {
-	
+
 	const endPoint = `/auctions/${id}`;
 	return apiFetch<Auction>(endPoint, {
 		method: "GET",
