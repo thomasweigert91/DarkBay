@@ -173,7 +173,7 @@ export function CreateAuctionForm() {
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 from-10% via-gray-900/40 via-40% to-transparent pointer-events-none" />
 
               {/* Status Badge */}
               <div className="absolute top-3 left-3 z-10">

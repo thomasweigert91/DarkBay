@@ -32,29 +32,29 @@ export const AuctionCard: FC<AuctionCardProps> = ({
   return (
     <div
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 shadow-xl",
+        "group relative flex flex-col justify-between overflow-hidden rounded-2xl border transition-all duration-300 ease-out shadow-xl",
         isEnded
-          ? "border-gray-800/60 bg-gray-900/50 opacity-85 hover:opacity-100 hover:border-gray-700 hover:bg-gray-900/80"
-          : "border-gray-800 bg-gray-900/90 hover:-translate-y-1 hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-950/30",
+          ? "border-gray-800 bg-gray-900 opacity-85 hover:opacity-100 hover:border-gray-700"
+          : "border-gray-800 bg-gray-900 hover:border-indigo-500/60 hover:shadow-2xl hover:shadow-indigo-950/40",
       )}
     >
-      <div>
-        {/* Image Showcase */}
-        <div className="relative aspect-square w-full overflow-hidden bg-gray-950">
+      <div className="flex flex-col bg-gray-900">
+        {/* Image Showcase with clean divider */}
+        <div className="relative aspect-square w-full overflow-hidden bg-gray-900 border-b border-gray-800/80">
           <Image
             src="/images/image.png"
             alt={title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className={cn(
-              "object-cover transition-all duration-500",
+              "object-cover transition-transform duration-500 will-change-transform",
               isEnded
                 ? "grayscale-[35%] group-hover:grayscale-0"
                 : "group-hover:scale-105",
             )}
           />
-          {/* Subtle gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/20 to-transparent" />
+          {/* Solid bottom gradient overlay to fully mask the image table and match card background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 from-10% via-gray-900/40 via-40% to-transparent pointer-events-none" />
 
           {/* Status Badge (Top-Left) */}
           <div className="absolute top-3 left-3 z-10">

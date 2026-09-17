@@ -32,6 +32,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(
         "h-full",
         "dark",
+        "bg-gray-950",
         "antialiased",
         geistSans.variable,
         geistMono.variable,
