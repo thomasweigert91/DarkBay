@@ -33,7 +33,10 @@ export default function LoginPage() {
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                <HugeiconsIcon icon={Mail01Icon} className="size-4 text-indigo-400" />
+                <HugeiconsIcon
+                  icon={Mail01Icon}
+                  className="size-4 text-indigo-400"
+                />
               </div>
               <input
                 type="email"
@@ -55,7 +58,10 @@ export default function LoginPage() {
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                <HugeiconsIcon icon={LockIcon} className="size-4 text-indigo-400" />
+                <HugeiconsIcon
+                  icon={LockIcon}
+                  className="size-4 text-indigo-400"
+                />
               </div>
               <input
                 type="password"

@@ -13,8 +13,8 @@ export default function NotFound() {
           Auktion nicht gefunden
         </h1>
         <p className="mt-2 text-xs sm:text-sm text-gray-400 leading-relaxed">
-          Die angeforderte Auktion existiert leider nicht oder wurde möglicherweise
-          bereits archiviert.
+          Die angeforderte Auktion existiert leider nicht oder wurde
+          möglicherweise bereits archiviert.
         </p>
         <div className="mt-6">
           <Link

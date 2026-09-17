@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { createAuctionAction } from "@/lib/services/auctionsAuth";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -15,32 +18,84 @@ import {
   Ticket01Icon,
 } from "@hugeicons/core-free-icons";
 
-type DurationOption = "1" | "3" | "7" | "14" | "custom";
+// Zod schema for auction creation validation
+const createAuctionSchema = z
+  .object({
+    title: z
+      .string({ message: "Bitte einen Titel eingeben" })
+      .trim()
+      .min(3, { message: "Der Titel muss mindestens 3 Zeichen lang sein" })
+      .max(120, { message: "Der Titel darf maximal 120 Zeichen lang sein" }),
+    startingPrice: z
+      .number({
+        message: "Bitte eine gültige Zahl für den Startpreis eingeben",
+      })
+      .min(1, { message: "Der Startpreis muss mindestens 1 € betragen" }),
+    description: z.string().optional(),
+    durationOption: z.enum(["1", "3", "7", "14", "custom"]),
+    customEndDate: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.durationOption === "custom") {
+        if (!data.customEndDate) return false;
+        const customTime = new Date(data.customEndDate).getTime();
+        return !isNaN(customTime) && customTime > Date.now();
+      }
+      return true;
+    },
+    {
+      message: "Das Enddatum muss in der Zukunft liegen",
+      path: ["customEndDate"],
+    },
+  );
+
+type CreateAuctionFormData = z.infer<typeof createAuctionSchema>;
 
 export function CreateAuctionForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [startingPrice, setStartingPrice] = useState<number | "">(10);
-  const [durationOption, setDurationOption] = useState<DurationOption>("3");
+  // Default end date: 3 days in the future
+  const defaultEndDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d;
+  }, []);
 
-  // Calculate default 3 days from now
-  const defaultEndDate = new Date();
-  defaultEndDate.setDate(defaultEndDate.getDate() + 3);
-  const [customEndDate, setCustomEndDate] = useState<string>(
-    defaultEndDate.toISOString().slice(0, 16),
-  );
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateAuctionFormData>({
+    resolver: zodResolver(createAuctionSchema),
+    defaultValues: {
+      title: "",
+      startingPrice: 10,
+      description: "",
+      durationOption: "3",
+      customEndDate: defaultEndDate.toISOString().slice(0, 16),
+    },
+  });
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  // Watch form inputs in real-time to drive the Live Preview
+  const watchedValues = useWatch({ control });
+  const watchedTitle = watchedValues.title ?? "";
+  const watchedPrice = watchedValues.startingPrice ?? 10;
+  const watchedDuration = watchedValues.durationOption ?? "3";
+  const watchedCustomDate = watchedValues.customEndDate;
 
-  // Compute calculated end date for preview and submission
+  // Calculate formatted end date for preview
   const getComputedEndDate = (): string => {
-    if (durationOption === "custom") {
-      return customEndDate ? new Date(customEndDate).toISOString() : defaultEndDate.toISOString();
+    if (watchedDuration === "custom") {
+      return watchedCustomDate
+        ? new Date(watchedCustomDate).toISOString()
+        : defaultEndDate.toISOString();
     }
-    const days = parseInt(durationOption, 10);
+    const days = parseInt(watchedDuration, 10);
     const date = new Date();
     date.setDate(date.getDate() + days);
     return date.toISOString();
@@ -55,28 +110,26 @@ export function CreateAuctionForm() {
     minute: "2-digit",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage(null);
-
-    const price = typeof startingPrice === "number" ? startingPrice : parseFloat(startingPrice);
-    if (isNaN(price) || price < 1) {
-      setErrorMessage("Der Startpreis muss mindestens 1 € betragen.");
-      return;
-    }
-
-    if (!title.trim()) {
-      setErrorMessage("Bitte gib einen Titel für die Auktion ein.");
-      return;
-    }
+  const onSubmit = (data: CreateAuctionFormData) => {
+    setServerError(null);
 
     startTransition(async () => {
       try {
+        let finalEndDate: string;
+        if (data.durationOption === "custom" && data.customEndDate) {
+          finalEndDate = new Date(data.customEndDate).toISOString();
+        } else {
+          const days = parseInt(data.durationOption, 10);
+          const date = new Date();
+          date.setDate(date.getDate() + days);
+          finalEndDate = date.toISOString();
+        }
+
         const newAuction = await createAuctionAction({
-          title: title.trim(),
-          description: description.trim(),
-          startingPrice: price,
-          endDate: computedEndDate,
+          title: data.title.trim(),
+          description: data.description?.trim() || "",
+          startingPrice: data.startingPrice,
+          endDate: finalEndDate,
         });
 
         if (newAuction && newAuction.id) {
@@ -89,7 +142,7 @@ export function CreateAuctionForm() {
           err instanceof Error
             ? err.message
             : "Auktion konnte nicht erstellt werden. Bitte versuche es erneut.";
-        setErrorMessage(msg);
+        setServerError(msg);
       }
     });
   };
@@ -100,8 +153,13 @@ export function CreateAuctionForm() {
       <div className="lg:col-span-5 space-y-6">
         <div className="rounded-2xl border border-gray-800 bg-gray-900/90 p-5 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-2 border-b border-gray-800/80 pb-3 mb-4">
-            <HugeiconsIcon icon={Ticket01Icon} className="size-4 text-indigo-400" />
-            <h3 className="font-semibold text-white">Live-Vorschau deiner Karte</h3>
+            <HugeiconsIcon
+              icon={Ticket01Icon}
+              className="size-4 text-indigo-400"
+            />
+            <h3 className="font-semibold text-white">
+              Live-Vorschau deiner Karte
+            </h3>
           </div>
 
           {/* Card Preview */}
@@ -110,7 +168,7 @@ export function CreateAuctionForm() {
             <div className="relative aspect-square w-full overflow-hidden bg-gray-900">
               <Image
                 src="/images/image.png"
-                alt={title || "DarkBay Artikel"}
+                alt={watchedTitle || "DarkBay Artikel"}
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
                 className="object-cover"
@@ -135,7 +193,7 @@ export function CreateAuctionForm() {
               {/* Title Overlay */}
               <div className="absolute bottom-3 left-3 right-3 z-10">
                 <h4 className="line-clamp-1 text-base font-bold text-white tracking-tight">
-                  {title || "Titel deiner Auktion..."}
+                  {watchedTitle || "Titel deiner Auktion..."}
                 </h4>
               </div>
             </div>
@@ -147,7 +205,7 @@ export function CreateAuctionForm() {
                   Startpreis
                 </span>
                 <p className="mt-0.5 text-sm font-extrabold text-emerald-400">
-                  {(Number(startingPrice) || 0).toLocaleString("de-DE")} €
+                  {(Number(watchedPrice) || 0).toLocaleString("de-DE")} €
                 </p>
               </div>
 
@@ -165,7 +223,10 @@ export function CreateAuctionForm() {
           {/* Fixed Image Notice */}
           <div className="mt-4 rounded-xl border border-indigo-500/30 bg-indigo-950/30 p-3.5 text-xs text-indigo-200 space-y-1">
             <div className="flex items-center gap-1.5 font-semibold text-indigo-300">
-              <HugeiconsIcon icon={InformationCircleIcon} className="size-4 text-indigo-400" />
+              <HugeiconsIcon
+                icon={InformationCircleIcon}
+                className="size-4 text-indigo-400"
+              />
               <span>Einheitliches Produktbild</span>
             </div>
             <p className="text-[11px] text-indigo-200/80 leading-relaxed">
@@ -179,7 +240,7 @@ export function CreateAuctionForm() {
       {/* Right Column (7/12): Interactive Form */}
       <div className="lg:col-span-7">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="rounded-2xl border border-gray-800 bg-gray-900/90 p-6 sm:p-8 shadow-xl backdrop-blur-md space-y-6"
         >
           <div className="border-b border-gray-800/80 pb-4">
@@ -191,66 +252,95 @@ export function CreateAuctionForm() {
             </p>
           </div>
 
-          {/* Error Alert */}
-          {errorMessage && (
+          {/* Server Error Alert */}
+          {serverError && (
             <div className="flex items-start gap-2.5 rounded-xl border border-red-500/40 bg-red-950/40 p-3 text-xs text-red-300">
-              <HugeiconsIcon icon={AlertCircleIcon} className="size-4 shrink-0 text-red-400 mt-0.5" />
-              <span>{errorMessage}</span>
+              <HugeiconsIcon
+                icon={AlertCircleIcon}
+                className="size-4 shrink-0 text-red-400 mt-0.5"
+              />
+              <span>{serverError}</span>
             </div>
           )}
 
           {/* Title Field */}
-          <div className="space-y-2">
-            <label htmlFor="title" className="block text-xs font-semibold uppercase tracking-wider text-gray-300">
-              Titel der Auktion <span className="text-indigo-400">*</span>
-            </label>
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center">
+              <label
+                htmlFor="title"
+                className="block text-xs font-semibold uppercase tracking-wider text-gray-300"
+              >
+                Titel der Auktion <span className="text-indigo-400">*</span>
+              </label>
+              <span className="text-[11px] text-gray-500">
+                {watchedTitle.length}/120
+              </span>
+            </div>
             <input
               id="title"
               type="text"
-              required
-              maxLength={120}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title")}
               placeholder="z. B. Vintage Sammlerstück oder Seltene Grafikkarte"
-              className="w-full rounded-xl border border-gray-800 bg-gray-950/80 px-3.5 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+              className={`w-full rounded-xl border bg-gray-950/80 px-3.5 py-2.5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-1 transition-colors ${
+                errors.title
+                  ? "border-red-500/80 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-800 focus:border-indigo-500 focus:ring-indigo-500"
+              }`}
             />
-            <div className="flex justify-between text-[11px] text-gray-500">
-              <span>Prägnanter Titel für Bieter</span>
-              <span>{title.length}/120</span>
-            </div>
+            {errors.title?.message ? (
+              <p className="text-[11px] text-red-400 flex items-center gap-1">
+                <HugeiconsIcon icon={AlertCircleIcon} className="size-3" />
+                <span>{errors.title.message}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-gray-500">
+                Prägnanter Titel, der sofort das Interesse weckt.
+              </p>
+            )}
           </div>
 
           {/* Starting Price Field */}
-          <div className="space-y-2">
-            <label htmlFor="startingPrice" className="block text-xs font-semibold uppercase tracking-wider text-gray-300">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="startingPrice"
+              className="block text-xs font-semibold uppercase tracking-wider text-gray-300"
+            >
               Startpreis (€) <span className="text-indigo-400">*</span>
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">
-                <HugeiconsIcon icon={Coins01Icon} className="size-4 text-indigo-400" />
+                <HugeiconsIcon
+                  icon={Coins01Icon}
+                  className="size-4 text-indigo-400"
+                />
               </div>
               <input
                 id="startingPrice"
                 type="number"
                 min="1"
                 step="1"
-                required
-                value={startingPrice}
-                onChange={(e) =>
-                  setStartingPrice(
-                    e.target.value === "" ? "" : Number(e.target.value),
-                  )
-                }
+                {...register("startingPrice", { valueAsNumber: true })}
                 placeholder="10"
-                className="w-full rounded-xl border border-gray-800 bg-gray-950/80 pl-10 pr-10 py-2.5 text-sm font-semibold text-emerald-400 placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                className={`w-full rounded-xl border bg-gray-950/80 pl-10 pr-10 py-2.5 text-sm font-semibold text-emerald-400 placeholder:text-gray-500 focus:outline-none focus:ring-1 transition-colors ${
+                  errors.startingPrice
+                    ? "border-red-500/80 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-800 focus:border-indigo-500 focus:ring-indigo-500"
+                }`}
               />
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 font-bold text-gray-400">
                 €
               </div>
             </div>
-            <p className="text-[11px] text-gray-500">
-              Mindestgebot, mit dem die Auktion startet.
-            </p>
+            {errors.startingPrice?.message ? (
+              <p className="text-[11px] text-red-400 flex items-center gap-1">
+                <HugeiconsIcon icon={AlertCircleIcon} className="size-3" />
+                <span>{errors.startingPrice.message}</span>
+              </p>
+            ) : (
+              <p className="text-[11px] text-gray-500">
+                Mindestgebot, mit dem die Auktion startet.
+              </p>
+            )}
           </div>
 
           {/* Duration Selector */}
@@ -264,9 +354,11 @@ export function CreateAuctionForm() {
                 <button
                   key={days}
                   type="button"
-                  onClick={() => setDurationOption(days)}
+                  onClick={() => {
+                    setValue("durationOption", days, { shouldValidate: true });
+                  }}
                   className={`rounded-xl border py-2 px-3 text-xs font-semibold transition-all cursor-pointer ${
-                    durationOption === days
+                    watchedDuration === days
                       ? "border-indigo-500 bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                       : "border-gray-800 bg-gray-950/60 text-gray-300 hover:bg-gray-800 hover:text-white"
                   }`}
@@ -279,9 +371,13 @@ export function CreateAuctionForm() {
             <div className="pt-1">
               <button
                 type="button"
-                onClick={() => setDurationOption("custom")}
+                onClick={() => {
+                  setValue("durationOption", "custom", {
+                    shouldValidate: true,
+                  });
+                }}
                 className={`text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
-                  durationOption === "custom"
+                  watchedDuration === "custom"
                     ? "text-indigo-400 underline font-semibold"
                     : "text-gray-400 hover:text-gray-300"
                 }`}
@@ -290,33 +386,50 @@ export function CreateAuctionForm() {
                 <span>Benutzerdefiniertes Enddatum wählen</span>
               </button>
 
-              {durationOption === "custom" && (
-                <div className="mt-2">
+              {watchedDuration === "custom" && (
+                <div className="mt-2 space-y-1">
                   <input
                     type="datetime-local"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-gray-800 bg-gray-950/80 px-3.5 py-2 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                    {...register("customEndDate")}
+                    className={`w-full rounded-xl border bg-gray-950/80 px-3.5 py-2 text-xs text-white focus:outline-none ${
+                      errors.customEndDate
+                        ? "border-red-500/80 focus:border-red-500"
+                        : "border-gray-800 focus:border-indigo-500"
+                    }`}
                   />
+                  {errors.customEndDate?.message && (
+                    <p className="text-[11px] text-red-400 flex items-center gap-1">
+                      <HugeiconsIcon
+                        icon={AlertCircleIcon}
+                        className="size-3"
+                      />
+                      <span>{errors.customEndDate.message}</span>
+                    </p>
+                  )}
                 </div>
               )}
             </div>
 
             <p className="text-[11px] text-indigo-300/80">
-              Endet am: <span className="font-semibold text-white">{formattedEndDate}</span>
+              Endet am:{" "}
+              <span className="font-semibold text-white">
+                {formattedEndDate}
+              </span>
             </p>
           </div>
 
           {/* Description Field */}
-          <div className="space-y-2">
-            <label htmlFor="description" className="block text-xs font-semibold uppercase tracking-wider text-gray-300">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="description"
+              className="block text-xs font-semibold uppercase tracking-wider text-gray-300"
+            >
               Artikelbeschreibung
             </label>
             <textarea
               id="description"
               rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              {...register("description")}
               placeholder="Detaillierte Informationen zum Zustand, Besonderheiten und Lieferumfang..."
               className="w-full rounded-xl border border-gray-800 bg-gray-950/80 p-3.5 text-sm text-white placeholder:text-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors leading-relaxed"
             />
@@ -331,12 +444,18 @@ export function CreateAuctionForm() {
             >
               {isPending ? (
                 <>
-                  <HugeiconsIcon icon={Loading01Icon} className="size-4 animate-spin" />
+                  <HugeiconsIcon
+                    icon={Loading01Icon}
+                    className="size-4 animate-spin"
+                  />
                   <span>Auktion wird erstellt...</span>
                 </>
               ) : (
                 <>
-                  <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-4" />
+                  <HugeiconsIcon
+                    icon={CheckmarkCircle02Icon}
+                    className="size-4"
+                  />
                   <span>Auktion jetzt veröffentlichen</span>
                 </>
               )}

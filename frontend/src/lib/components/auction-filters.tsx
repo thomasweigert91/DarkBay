@@ -85,8 +85,8 @@ export function AuctionFilters({
 
   const hasActiveFilters = Boolean(
     currentStatus ||
-      priceRange[0] > DEFAULT_MIN_PRICE ||
-      priceRange[1] < DEFAULT_MAX_PRICE,
+    priceRange[0] > DEFAULT_MIN_PRICE ||
+    priceRange[1] < DEFAULT_MAX_PRICE,
   );
 
   useEffect(() => {
@@ -138,11 +138,15 @@ export function AuctionFilters({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-            <HugeiconsIcon icon={Coins01Icon} className="size-3.5 text-indigo-400" />
+            <HugeiconsIcon
+              icon={Coins01Icon}
+              className="size-3.5 text-indigo-400"
+            />
             <span>Preisspanne:</span>
           </div>
           <span className="rounded-lg border border-gray-800 bg-gray-950/70 px-2 py-0.5 font-mono text-[11px] font-semibold text-emerald-400">
-            {priceRange[0].toLocaleString("de-DE")} € - {priceRange[1].toLocaleString("de-DE")} €
+            {priceRange[0].toLocaleString("de-DE")} € -{" "}
+            {priceRange[1].toLocaleString("de-DE")} €
           </span>
         </div>
 
@@ -166,7 +170,10 @@ export function AuctionFilters({
       {/* Status Filter */}
       <div className="space-y-3 border-t border-gray-800/80 pt-4">
         <div className="flex items-center gap-1.5 text-xs font-medium text-gray-300">
-          <HugeiconsIcon icon={Clock01Icon} className="size-3.5 text-indigo-400" />
+          <HugeiconsIcon
+            icon={Clock01Icon}
+            className="size-3.5 text-indigo-400"
+          />
           <span>Status:</span>
         </div>
 

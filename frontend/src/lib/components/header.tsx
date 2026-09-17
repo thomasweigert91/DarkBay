@@ -59,7 +59,10 @@ export const Header = ({ isAuthenticated }: HeaderProps) => {
                   type="submit"
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-gray-800 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:border-gray-700 hover:bg-gray-800 hover:text-white"
                 >
-                  <HugeiconsIcon icon={Logout01Icon} className="size-3.5 text-gray-400" />
+                  <HugeiconsIcon
+                    icon={Logout01Icon}
+                    className="size-3.5 text-gray-400"
+                  />
                   <span className="hidden sm:inline">Abmelden</span>
                 </button>
               </form>
@@ -69,7 +72,10 @@ export const Header = ({ isAuthenticated }: HeaderProps) => {
                   href="/login"
                   className="inline-flex items-center gap-1.5 rounded-xl border border-gray-800 bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-300 transition-colors hover:bg-gray-800 hover:text-white"
                 >
-                  <HugeiconsIcon icon={UserIcon} className="size-3.5 text-indigo-400" />
+                  <HugeiconsIcon
+                    icon={UserIcon}
+                    className="size-3.5 text-indigo-400"
+                  />
                   <span>Anmelden</span>
                 </Link>
                 <Link

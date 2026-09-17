@@ -45,14 +45,16 @@ export default async function Home({ searchParams }: PageProps) {
                 Auktionshaus
               </span>
               <span className="text-xs font-mono text-gray-400">
-                {totalItems} {totalItems === 1 ? "Artikel verfügbar" : "Artikel verfügbar"}
+                {totalItems}{" "}
+                {totalItems === 1 ? "Artikel verfügbar" : "Artikel verfügbar"}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
               Entdecke exklusive Auktionen
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-gray-400">
-              Biete live auf seltene Artikel oder erstelle unkompliziert deine eigene Auktion.
+              Biete live auf seltene Artikel oder erstelle unkompliziert deine
+              eigene Auktion.
             </p>
           </div>
 
@@ -114,7 +116,8 @@ export default async function Home({ searchParams }: PageProps) {
                   Keine Auktionen gefunden
                 </h3>
                 <p className="mt-1 text-xs sm:text-sm text-gray-400 max-w-sm">
-                  Für die gewählten Filterkriterien wurden keine Auktionen gefunden. Bitte passe deine Filter an.
+                  Für die gewählten Filterkriterien wurden keine Auktionen
+                  gefunden. Bitte passe deine Filter an.
                 </p>
                 <div className="mt-5 flex items-center gap-3">
                   <Link

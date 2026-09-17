@@ -200,4 +200,3 @@ export async function createAuctionAction(input: CreateAuctionInput) {
   revalidatePath("/auctions");
   return newAuction;
 }
-

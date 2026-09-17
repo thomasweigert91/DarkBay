@@ -27,9 +27,7 @@ export const AuctionCard: FC<AuctionCardProps> = ({
   isEnded: isEndedProp,
 }) => {
   const isEnded =
-    isEndedProp !== undefined
-      ? isEndedProp
-      : new Date(endDate) <= new Date();
+    isEndedProp !== undefined ? isEndedProp : new Date(endDate) <= new Date();
 
   return (
     <div
@@ -96,7 +94,10 @@ export const AuctionCard: FC<AuctionCardProps> = ({
           {/* Price Box */}
           <div className="flex flex-col rounded-xl border border-gray-800/60 bg-gray-800/40 p-2.5">
             <div className="flex items-center gap-1 text-[11px] font-medium text-gray-400">
-              <HugeiconsIcon icon={Coins01Icon} className="size-3 text-indigo-400" />
+              <HugeiconsIcon
+                icon={Coins01Icon}
+                className="size-3 text-indigo-400"
+              />
               <span>{isEnded ? "Endpreis" : "Aktuelles Gebot"}</span>
             </div>
             <p
@@ -112,12 +113,17 @@ export const AuctionCard: FC<AuctionCardProps> = ({
           {/* Time/Status Box */}
           <div className="flex flex-col rounded-xl border border-gray-800/60 bg-gray-800/40 p-2.5">
             <div className="flex items-center gap-1 text-[11px] font-medium text-gray-400">
-              <HugeiconsIcon icon={Clock01Icon} className="size-3 text-indigo-400" />
+              <HugeiconsIcon
+                icon={Clock01Icon}
+                className="size-3 text-indigo-400"
+              />
               <span>{isEnded ? "Status" : "Verbleibend"}</span>
             </div>
             <div className="mt-0.5 text-xs font-semibold">
               {isEnded ? (
-                <span className="text-red-400 font-medium">Auktion beendet</span>
+                <span className="text-red-400 font-medium">
+                  Auktion beendet
+                </span>
               ) : (
                 <span className="text-indigo-300">
                   <Countdown endDate={endDate} />
