@@ -6,11 +6,8 @@ import { auth } from './auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { initPostgresTables } from './init-db';
 
 async function bootstrap() {
-  await initPostgresTables();
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
