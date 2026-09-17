@@ -14,7 +14,10 @@ const getDatabase = () => {
 
 export const auth = betterAuth({
   database: getDatabase(),
-  trustedOrigins: ['http://localhost:3000'],
+  trustedOrigins: [
+    'http://localhost:3000',
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+  ],
   plugins: [bearer()],
   emailAndPassword: {
     enabled: true,

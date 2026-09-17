@@ -35,6 +35,9 @@ export async function loginAction(formData: FormData) {
   const cookieStore = await cookies();
   cookieStore.set(TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
   });
 
   redirect("/");
@@ -44,6 +47,8 @@ export async function registerAction(formData: FormData) {
   const name = String(formData.get("name"));
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
+
+  let shouldRedirect = false;
 
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/sign-up/email`, {
@@ -56,9 +61,9 @@ export async function registerAction(formData: FormData) {
     });
 
     if (!response.ok) {
-      const errBody: Error = await response.json().catch();
+      const errBody = await response.json().catch(() => null);
       console.log("Register Error:", errBody);
-      throw new Error(errBody.message || "Registration failed");
+      throw new Error(errBody?.message || "Registration failed");
     }
 
     const data = await response.json();
@@ -67,12 +72,20 @@ export async function registerAction(formData: FormData) {
       const cookieStore = await cookies();
       cookieStore.set(TOKEN_COOKIE_NAME, data.token, {
         httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
       });
 
-      redirect("/");
+      shouldRedirect = true;
     }
   } catch (error) {
-    console.log(error);
+    console.error("Register Error:", error);
+    throw error;
+  }
+
+  if (shouldRedirect) {
+    redirect("/");
   }
 }
 

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { loginAction } from "@/lib/services/auctionsAuth";
 import { HugeiconsIcon } from "@hugeicons/react";
