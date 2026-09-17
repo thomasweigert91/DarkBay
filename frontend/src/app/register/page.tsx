@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useActionState } from "react";
 import { registerAction } from "@/lib/services/auctionsAuth";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -6,9 +9,12 @@ import {
   UserIcon,
   Mail01Icon,
   LockIcon,
+  Alert02Icon,
 } from "@hugeicons/core-free-icons";
 
 export default function RegisterPage() {
+  const [state, formAction, isPending] = useActionState(registerAction, null);
+
   return (
     <div className="min-h-[calc(100vh-4.5rem)] bg-gray-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md rounded-3xl border border-gray-800 bg-gray-900/90 p-8 shadow-2xl backdrop-blur-md">
@@ -26,7 +32,14 @@ export default function RegisterPage() {
         </div>
 
         {/* Form */}
-        <form action={registerAction} className="space-y-4">
+        <form action={formAction} className="space-y-4">
+          {state?.error && (
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs font-medium text-red-400">
+              <HugeiconsIcon icon={Alert02Icon} className="size-4 shrink-0" />
+              <span>{state.error}</span>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label
               htmlFor="name"
@@ -105,9 +118,10 @@ export default function RegisterPage() {
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full cursor-pointer rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all hover:bg-indigo-500 active:scale-[0.99]"
+              disabled={isPending}
+              className="w-full cursor-pointer rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all hover:bg-indigo-500 active:scale-[0.99] disabled:opacity-50"
             >
-              Registrieren
+              {isPending ? "Wird registriert..." : "Registrieren"}
             </button>
           </div>
         </form>
