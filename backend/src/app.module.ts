@@ -24,6 +24,9 @@ import { WatchlistsModule } from './watchlists/watchlists.module';
             url: process.env.DATABASE_URL,
             entities: [Auction, Offer, User, Watchlist],
             synchronize: true,
+            ssl: {
+              rejectUnauthorized: false,
+            },
           };
         }
         return {

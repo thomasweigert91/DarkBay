@@ -27,11 +27,9 @@ export class User {
   @Column({ nullable: true })
   image!: string;
 
-  @CreateDateColumn({ type: 'datetime' })
   @CreateDateColumn()
   createdAt!: Date;
 
-  @UpdateDateColumn({ type: 'datetime' })
   @UpdateDateColumn()
   updatedAt!: Date;
 

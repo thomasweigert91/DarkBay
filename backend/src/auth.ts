@@ -7,6 +7,9 @@ const getDatabase = () => {
   if (process.env.DATABASE_URL) {
     return new Pool({
       connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     });
   }
   return new Database('data/dark-bay.sqlite');

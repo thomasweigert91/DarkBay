@@ -39,11 +39,19 @@ export async function loginAction(
     });
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => null);
-      console.log("Backend sign-in error:", errorBody);
-      return {
-        error: errorBody?.message || "E-Mail oder Passwort ist nicht korrekt.",
-      };
+      let message = `Anmeldung fehlgeschlagen (${response.status})`;
+      try {
+        const errorBody = await response.json();
+        message =
+          errorBody?.message ||
+          errorBody?.error ||
+          (typeof errorBody === "string" ? errorBody : "E-Mail oder Passwort ist nicht korrekt.");
+      } catch {
+        const text = await response.text().catch(() => "");
+        if (text) message = text;
+      }
+      console.log("Backend sign-in error:", response.status, message);
+      return { error: message };
     }
 
     const resData = await response.json();
@@ -94,13 +102,19 @@ export async function registerAction(
     });
 
     if (!response.ok) {
-      const errBody = await response.json().catch(() => null);
-      console.log("Backend sign-up error:", errBody);
-      return {
-        error:
+      let message = `Registrierung fehlgeschlagen (${response.status})`;
+      try {
+        const errBody = await response.json();
+        message =
           errBody?.message ||
-          "Registrierung fehlgeschlagen. Möglicherweise existiert diese E-Mail bereits.",
-      };
+          errBody?.error ||
+          (typeof errBody === "string" ? errBody : "Registrierung fehlgeschlagen.");
+      } catch {
+        const text = await response.text().catch(() => "");
+        if (text) message = text;
+      }
+      console.log("Backend sign-up error:", response.status, message);
+      return { error: message };
     }
 
     const resData = await response.json();
