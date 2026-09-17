@@ -49,12 +49,12 @@ export const AuctionCard: FC<AuctionCardProps> = ({
             className={cn(
               "object-cover transition-transform duration-500 will-change-transform",
               isEnded
-                ? "grayscale-[35%] group-hover:grayscale-0"
+                ? "grayscale-35 group-hover:grayscale-0"
                 : "group-hover:scale-105",
             )}
           />
           {/* Solid bottom gradient overlay to fully mask the image table and match card background */}
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 from-10% via-gray-900/40 via-40% to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-t from-gray-900 from-10% via-gray-900/40 via-40% to-transparent pointer-events-none" />
 
           {/* Status Badge (Top-Left) */}
           <div className="absolute top-3 left-3 z-10">
