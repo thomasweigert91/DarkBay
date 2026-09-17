@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 // our backend server
 const API_BASE_URL = process.env.DARKBAY_API_URL || "http://localhost:8000";
@@ -142,3 +143,61 @@ export async function createOfferAction(auctionId: string, offer: number) {
 
   return await response.json();
 }
+
+export interface CreateAuctionInput {
+  title: string;
+  description: string;
+  startingPrice: number;
+  endDate?: string;
+}
+
+export async function createAuctionAction(input: CreateAuctionInput) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+
+  if (!token) {
+    throw new Error("Bitte melden Sie sich an, um eine Auktion zu erstellen.");
+  }
+
+  if (!input.title || input.title.trim() === "") {
+    throw new Error("Bitte geben Sie einen Titel für die Auktion ein.");
+  }
+
+  if (input.startingPrice === undefined || input.startingPrice < 1) {
+    throw new Error("Der Startpreis muss mindestens 1 € betragen.");
+  }
+
+  const payload: Record<string, unknown> = {
+    title: input.title.trim(),
+    description: input.description?.trim() || "",
+    startingPrice: Number(input.startingPrice),
+  };
+
+  if (input.endDate) {
+    payload.endDate = new Date(input.endDate).toISOString();
+  }
+
+  const response = await fetch(`${API_BASE_URL}/auctions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => null);
+    const message = Array.isArray(errorBody?.message)
+      ? errorBody.message.join(", ")
+      : errorBody?.message ||
+        `Fehler beim Erstellen der Auktion (${response.status})`;
+    throw new Error(message);
+  }
+
+  const newAuction = await response.json();
+  revalidatePath("/");
+  revalidatePath("/auctions");
+  return newAuction;
+}
+

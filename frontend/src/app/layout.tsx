@@ -29,9 +29,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 
 	return (
 		<html
-			lang="en"
+			lang="de"
 			className={cn(
 				"h-full",
+				"dark",
 				"antialiased",
 				geistSans.variable,
 				geistMono.variable,
@@ -39,7 +40,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
 				figtree.variable,
 			)}
 		>
-			<body className="min-h-full flex flex-col">
+			<body className="min-h-full flex flex-col bg-gray-950 text-gray-100 antialiased">
 				<Header isAuthenticated={isAuth} />
 				{children}
 			</body>
